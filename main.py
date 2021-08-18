@@ -118,15 +118,36 @@ def speed_up_video(input_file, string, duration):
         input_path, (1 / speed_factor), speed_factor, output_path))
 
 
-FILE_NAME = 'wigl'
+def remove_video_files(name):
+    os.remove('res/' + name + '_voiced.mp4')
+    os.remove('res/' + name + '_voiced_audio.wav')
+    os.remove('res/' + name + '_voiced_audio_16k.wav')
+    os.remove('res/' + name + '_voiced_audio_16k_stereo.wav')
 
-cut_out_silent_parts(FILE_NAME)
 
-wav_out_path, video_duration = get_wav_from_video(FILE_NAME + '_voiced')
+def process_single_video(name):
+    cut_out_silent_parts(name)
 
-print('Duration: %.2fs' % video_duration)
-out_string = get_string_from_wav(wav_out_path)
-print(out_string)
-print(len(out_string.split(' ')))
+    wav_out_path, video_duration = get_wav_from_video(name + '_voiced')
+    print('Duration: %.2fs' % video_duration)
+    out_string = get_string_from_wav(wav_out_path)
+    print(out_string)
+    print(len(out_string.split(' ')))
 
-speed_up_video(FILE_NAME + '_voiced', out_string, video_duration)
+    speed_up_video(name + '_voiced', out_string, video_duration)
+
+    remove_video_files(name)
+
+
+def get_file_name(name):
+    return name.split('.')[0]
+
+
+def process_videos_in_dir(dir_name):
+    files = list(map(get_file_name, os.listdir('res/' + dir_name)))
+    for f in files:
+        print('Working on file: ' + f)
+        process_single_video(dir_name + '/' + f)
+
+
+process_videos_in_dir('convert')
